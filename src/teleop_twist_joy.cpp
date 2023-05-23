@@ -96,6 +96,7 @@ TeleopTwistJoy::TeleopTwistJoy(const rclcpp::NodeOptions& options) : Node("teleo
 
   std::map<std::string, int64_t> default_angular_map{
     {"yaw", 2L},
+    {"yaw_2", -1L},
     {"pitch", -1L},
     {"roll", -1L},
   };
@@ -120,6 +121,7 @@ TeleopTwistJoy::TeleopTwistJoy(const rclcpp::NodeOptions& options) : Node("teleo
 
   std::map<std::string, double> default_scale_angular_normal_map{
     {"yaw", 0.5},
+    {"yaw_2", 0.0},
     {"pitch", 0.0},
     {"roll", 0.0},
   };
@@ -128,6 +130,7 @@ TeleopTwistJoy::TeleopTwistJoy(const rclcpp::NodeOptions& options) : Node("teleo
 
   std::map<std::string, double> default_scale_angular_turbo_map{
     {"yaw", 1.0},
+    {"yaw_2", 0.0},
     {"pitch", 0.0},
     {"roll", 0.0},
   };
@@ -163,7 +166,7 @@ TeleopTwistJoy::TeleopTwistJoy(const rclcpp::NodeOptions& options) : Node("teleo
   [this](std::vector<rclcpp::Parameter> parameters)
   {
     static std::set<std::string> intparams = {"axis_linear.x", "axis_linear.y", "axis_linear.z",
-                                              "axis_angular.yaw", "axis_angular.pitch", "axis_angular.roll",
+                                              "axis_angular.yaw", "axis_angular.yaw_2", "axis_angular.pitch", "axis_angular.roll",
                                               "enable_button", "enable_turbo_button"};
     static std::set<std::string> doubleparams = {"scale_linear.x", "scale_linear.y", "scale_linear.z",
                                                  "scale_linear_turbo.x", "scale_linear_turbo.y", "scale_linear_turbo.z",
@@ -236,6 +239,10 @@ TeleopTwistJoy::TeleopTwistJoy(const rclcpp::NodeOptions& options) : Node("teleo
         this->pimpl_->axis_linear_map["z"] = parameter.get_value<rclcpp::PARAMETER_INTEGER>();
       }
       else if (parameter.get_name() == "axis_angular.yaw")
+      {
+        this->pimpl_->axis_angular_map["yaw"] = parameter.get_value<rclcpp::PARAMETER_INTEGER>();
+      }
+      else if (parameter.get_name() == "axis_angular.yaw_2")
       {
         this->pimpl_->axis_angular_map["yaw"] = parameter.get_value<rclcpp::PARAMETER_INTEGER>();
       }
@@ -330,7 +337,7 @@ void TeleopTwistJoy::Impl::sendCmdVelMsg(const sensor_msgs::msg::Joy::SharedPtr 
   cmd_vel_msg->linear.x = getVal(joy_msg, axis_linear_map, scale_linear_map[which_map], "x");
   cmd_vel_msg->linear.y = getVal(joy_msg, axis_linear_map, scale_linear_map[which_map], "y");
   cmd_vel_msg->linear.z = getVal(joy_msg, axis_linear_map, scale_linear_map[which_map], "z");
-  cmd_vel_msg->angular.z = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "yaw");
+  cmd_vel_msg->angular.z = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "yaw") - getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "yaw_2");
   cmd_vel_msg->angular.y = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "pitch");
   cmd_vel_msg->angular.x = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "roll");
 
