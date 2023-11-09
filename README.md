@@ -1,5 +1,9 @@
 ros2/teleop_twist_joy
 ================
+----
+Nicolas Escobar 2023-05:
+Package has been built from source and edited to support yaw_2. This allows one trigger to steer left and the other to steer right.
+----
 
 # Overview
 The purpose of this package is to provide a generic facility for tele-operating Twist-based ROS2 robots with a standard joystick. 
